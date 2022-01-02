@@ -70,8 +70,8 @@ class Customs {
 
     Get.snackbar(title, '$message',
         icon: Icon(
-          Icons.info,
-          color: Colors.amber.shade800,
+          Icons.check_circle,
+          color: Colors.green.shade800,
         ),
         duration: const Duration(seconds: 10));
   }

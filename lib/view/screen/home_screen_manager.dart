@@ -8,6 +8,7 @@ import 'package:garaj/helper/customs.dart';
 import 'package:garaj/model/garaj.dart';
 import 'package:garaj/model/reservation.dart';
 import 'package:garaj/view/widgets/drawer_widget.dart';
+import 'package:garaj/view/widgets/my_reservations.dart';
 import 'package:garaj/viewmodel/auth_controller.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:uuid/uuid.dart';
@@ -181,7 +182,47 @@ class HomeScreenManagerState extends State<HomeScreenManager> {
                           )
                         ),
                       ),
-                    )
+                    ),
+                    Positioned(
+                        bottom: 0,
+                        left: 0,
+                        right: 0,
+                        child: GestureDetector(
+                          onTap: () {
+                            _scaffoldkey.currentState!.showBottomSheet(
+                                    (context) =>  MyReservations(isManager: true,));
+                          },
+                          child: Container(
+                            height: 40,
+                            child: Column(
+                              children: [
+                                const SizedBox(
+                                  height: 4,
+                                ),
+                                Container(
+                                  width: 70,
+                                  height: 2,
+                                  decoration: BoxDecoration(
+                                      borderRadius: BorderRadius.circular(300),
+                                      color: Colors.black),
+                                ),
+                                const SizedBox(
+                                  height: 10,
+                                ),
+                                const Text(
+                                  'My Reservation',
+                                  style: TextStyle(fontWeight: FontWeight.bold),
+                                ),
+                              ],
+                            ),
+                            decoration: const BoxDecoration(
+                                color: Colors.white,
+                                borderRadius: BorderRadius.only(
+                                    topRight: Radius.circular(15),
+                                    topLeft: Radius.circular(15))),
+                          ),
+                        ))
+
                   ],
                 ),
               ));

@@ -10,7 +10,7 @@ class LanguageControl extends GetxController {
     // TODO: implement onInit
     super.onInit();
     LocalStorage localStorage = LocalStorage();
-    appLanguage = (await localStorage.languageSelected)!;
+    appLanguage = (await localStorage.languageSelected)??'ar';
     Get.updateLocale(Locale(appLanguage));
     update();
   }

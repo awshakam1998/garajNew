@@ -5,7 +5,7 @@ import 'package:garaj/utils/translation.dart';
 import 'package:get/get_navigation/src/root/get_material_app.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
-var appLanguage = 'ar';
+var appLanguage = 'en';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -24,8 +24,8 @@ class MyApp extends StatelessWidget {
   Widget build(BuildContext context) {
     return GetMaterialApp(
       translations: Translation(),
-      locale: Locale(appLanguage),
-      fallbackLocale: Locale(appLanguage),
+      locale: Locale('en'),
+      fallbackLocale: Locale('en'),
       debugShowCheckedModeBanner: false,
       theme: ThemeData(
           inputDecorationTheme: InputDecorationTheme(

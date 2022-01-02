@@ -5,10 +5,11 @@ import 'dart:ui';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
-import 'package:garaj/helper/customs.dart';
 import 'package:garaj/model/garaj.dart';
 import 'package:garaj/model/reservation.dart';
+import 'package:garaj/view/widgets/book_dialog.dart';
 import 'package:garaj/view/widgets/drawer_widget.dart';
+import 'package:garaj/view/widgets/my_reservations.dart';
 import 'package:garaj/viewmodel/auth_controller.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:uuid/uuid.dart';
@@ -20,15 +21,22 @@ class HomeScreenClient extends StatefulWidget {
   State<HomeScreenClient> createState() => HomeScreenClientState();
 }
 
+CollectionReference parkingRef =
+    FirebaseFirestore.instance.collection('parking');
+CollectionReference userRef = FirebaseFirestore.instance.collection('user');
+CollectionReference reservationRef =
+    FirebaseFirestore.instance.collection('reservations');
+
 class HomeScreenClientState extends State<HomeScreenClient> {
   Completer<GoogleMapController> _controller = Completer();
   Set<Marker> _markers = Set<Marker>();
   List<Garaj> garajs = [];
-  CollectionReference parkingRef =
-      FirebaseFirestore.instance.collection('parking');
-  CollectionReference reservationRef =
-      FirebaseFirestore.instance.collection('reservations');
+
   bool isLoad = false;
+
+  bool hasReservation = false;
+
+  Reservation? reservation;
 
   @override
   void initState() {
@@ -53,7 +61,14 @@ class HomeScreenClientState extends State<HomeScreenClient> {
           _markers.add(
             Marker(
                 onTap: () {
-                  showMarkerDetails(context, markerId, garaj);
+                  showDialog(
+                    context: context,
+                    builder: (BuildContext context) {
+                      return BookDialog(
+                        garaj: garaj,
+                      );
+                    },
+                  );
                 },
                 markerId: markerId,
                 position: latLng),
@@ -88,47 +103,35 @@ class HomeScreenClientState extends State<HomeScreenClient> {
         drawer: DrawerWidget(),
         key: _scaffoldkey,
         floatingActionButton: userType == 0
-            ? StreamBuilder<QuerySnapshot>(
-                stream: reservationRef.get().asStream(),
-                builder: (context, snapshot) {
-                  if (snapshot.hasData) {
-                    if (snapshot.data!.docs.isNotEmpty) {
-                      return Padding(
-                        padding: const EdgeInsets.symmetric(vertical: 80),
-                        child: SizedBox(
-                          height: 70,
-                          child: Stack(
-                            children: [
-                              Padding(
-                                padding: const EdgeInsets.all(4.0),
-                                child: Container(
-                                  decoration: BoxDecoration(
-                                      shape: BoxShape.circle,
-                                      color: Theme.of(context).primaryColor),
-                                  child: Padding(
-                                    padding: const EdgeInsets.all(12.0),
-                                    child: Image.asset(
-                                      'assets/booking.png',
-                                      color: Colors.white,
-                                    ),
-                                  ),
-                                ),
-                              ),
-                              const CircleAvatar(
-                                radius: 10,
-                                backgroundColor: Colors.red,
-                              )
-                            ],
+            ? Padding(
+                padding: const EdgeInsets.symmetric(vertical: 80),
+                child: SizedBox(
+                  height: 70,
+                  child: Stack(
+                    children: [
+                      Padding(
+                        padding: const EdgeInsets.all(4.0),
+                        child: Container(
+                          decoration: BoxDecoration(
+                              shape: BoxShape.circle,
+                              color: Theme.of(context).primaryColor),
+                          child: Padding(
+                            padding: const EdgeInsets.all(12.0),
+                            child: Image.asset(
+                              'assets/booking.png',
+                              color: Colors.white,
+                            ),
                           ),
                         ),
-                      );
-                    } else {
-                      return Container();
-                    }
-                  } else {
-                    return Container();
-                  }
-                })
+                      ),
+                      const CircleAvatar(
+                        radius: 10,
+                        backgroundColor: Colors.red,
+                      )
+                    ],
+                  ),
+                ),
+              )
             : null,
         body: isLoad
             ? const Center(child: CircularProgressIndicator())
@@ -188,89 +191,110 @@ class HomeScreenClientState extends State<HomeScreenClient> {
                             )),
                       ),
                     ),
+                    // Positioned(
+                    //   right: 0,
+                    //   left: 0,
+                    //   bottom: 0,
+                    //   height: 200,
+                    //   child: StreamBuilder<QuerySnapshot>(
+                    //       stream: reservationRef.get().asStream(),
+                    //       builder: (context, snapshot) {
+                    //         if (snapshot.hasData) {
+                    //           if (snapshot.data!.docs.isNotEmpty) {
+                    //             snapshot.data!.docs.forEach((element) {
+                    //               Reservation r = Reservation.fromJson(
+                    //                   json.decode(json.encode(element.data())));
+                    //               if (r.userId == uid) {
+                    //                 hasReservation = true;
+                    //                 reservation = r;
+                    //               }
+                    //             });
+                    //             return hasReservation
+                    //                 ? Container(
+                    //                     decoration: const BoxDecoration(
+                    //                         color: Colors.white,
+                    //                         borderRadius: BorderRadius.only(
+                    //                             topLeft: Radius.circular(20),
+                    //                             topRight: Radius.circular(20))),
+                    //                     child: Padding(
+                    //                       padding: const EdgeInsets.all(8.0),
+                    //                       child: Column(
+                    //                         children: [
+                    //                           const Text("reservation"),
+                    //                           Text(reservation!.id ?? ""),
+                    //                           Container(
+                    //                               decoration: BoxDecoration(
+                    //                                 shape: BoxShape.circle,
+                    //                                 color: Theme.of(context)
+                    //                                     .primaryColor,
+                    //                               ),
+                    //                               child: Padding(
+                    //                                 padding:
+                    //                                     const EdgeInsets.all(
+                    //                                         20.0),
+                    //                                 child: Text(
+                    //                                   reservation!.status ?? "",
+                    //                                   style: const TextStyle(
+                    //                                       color: Colors.white,
+                    //                                       fontWeight:
+                    //                                           FontWeight.bold),
+                    //                                 ),
+                    //                               )),
+                    //                         ],
+                    //                       ),
+                    //                     ),
+                    //                   )
+                    //                 : Container();
+                    //           } else {
+                    //             return Container();
+                    //           }
+                    //         } else {
+                    //           return Container();
+                    //         }
+                    //       }),
+                    // )
                     Positioned(
-                      right: 0,
-                      left: 0,
-                      bottom: 0,
-                      height: 200,
-                      child: StreamBuilder<QuerySnapshot>(
-                          stream: reservationRef.get().asStream(),
-                          builder: (context, snapshot) {
-                            if (snapshot.hasData) {
-                              if (snapshot.data!.docs.isNotEmpty) {
-                                print(snapshot.data!.docs.where((element) =>
-                                    Reservation.fromJson(json.decode(
-                                            json.encode(element.data())))
-                                        .userId ==
-                                    uid));
-                                return Container(
+                        bottom: 0,
+                        left: 0,
+                        right: 0,
+                        child: GestureDetector(
+                          onTap: () {
+                            _scaffoldkey.currentState!.showBottomSheet(
+                                (context) =>  MyReservations(isManager: false,));
+                          },
+                          child: Container(
+                            height: 40,
+                            child: Column(
+                              children: [
+                                const SizedBox(
+                                  height: 4,
+                                ),
+                                Container(
+                                  width: 70,
+                                  height: 2,
                                   decoration: BoxDecoration(
-                                      color: Colors.red,
-                                      borderRadius: BorderRadius.only(
-                                          topLeft: Radius.circular(20),
-                                          topRight: Radius.circular(20))),
-                                );
-                              } else {
-                                return Container();
-                              }
-                            } else {
-                              return Container();
-                            }
-                          }),
-                    )
+                                      borderRadius: BorderRadius.circular(300),
+                                      color: Colors.black),
+                                ),
+                                const SizedBox(
+                                  height: 10,
+                                ),
+                                const Text(
+                                  'My Reservation',
+                                  style: TextStyle(fontWeight: FontWeight.bold),
+                                ),
+                              ],
+                            ),
+                            decoration: const BoxDecoration(
+                                color: Colors.white,
+                                borderRadius: BorderRadius.only(
+                                    topRight: Radius.circular(15),
+                                    topLeft: Radius.circular(15))),
+                          ),
+                        ))
                   ],
                 ),
               ));
-  }
-
-  showMarkerDetails(BuildContext context, MarkerId markerId, Garaj garaj) {
-    // set up the buttons
-    var uuid = const Uuid();
-    final resUid = uuid.v1();
-    Widget cancelButton = FlatButton(
-      child: const Text("cancel"),
-      onPressed: () {
-        Navigator.pop(context);
-      },
-    );
-    Widget continueButton = FlatButton(
-      child: const Text("Book"),
-      onPressed: () {
-        Customs().loading();
-        Reservation reservation = Reservation(
-            id: resUid,
-            managerId: garaj.managerId,
-            userId: uid,
-            status: "Pending",
-            parkId: garaj.id);
-        reservationRef
-            .doc(markerId.value)
-            .set(reservation.toJson())
-            .then((value) {
-          Navigator.pop(context);
-          Navigator.pop(context);
-        }).onError((error, stackTrace) {
-          log('$error');
-        });
-      },
-    );
-    // set up the AlertDialog
-    AlertDialog alert = AlertDialog(
-      title: const Text("Park Info"),
-      content: Text("Remaining: ${garaj.available}/${garaj.capacity} Parks"
-          "\nAre you sure to Book this park?"),
-      actions: [
-        cancelButton,
-        continueButton,
-      ],
-    );
-    // show the dialog
-    showDialog(
-      context: context,
-      builder: (BuildContext context) {
-        return alert;
-      },
-    );
   }
 
   addMarker(Garaj garaj) {
@@ -278,7 +302,14 @@ class HomeScreenClientState extends State<HomeScreenClient> {
     _markers.add(
       Marker(
           onTap: () {
-            showMarkerDetails(context, markerId, garaj);
+            showDialog(
+              context: context,
+              builder: (BuildContext context) {
+                return BookDialog(
+                  garaj: garaj,
+                );
+              },
+            );
           },
           markerId: markerId,
           position: currentPosition.target),

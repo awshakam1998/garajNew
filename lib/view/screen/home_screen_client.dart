@@ -191,68 +191,6 @@ class HomeScreenClientState extends State<HomeScreenClient> {
                             )),
                       ),
                     ),
-                    // Positioned(
-                    //   right: 0,
-                    //   left: 0,
-                    //   bottom: 0,
-                    //   height: 200,
-                    //   child: StreamBuilder<QuerySnapshot>(
-                    //       stream: reservationRef.get().asStream(),
-                    //       builder: (context, snapshot) {
-                    //         if (snapshot.hasData) {
-                    //           if (snapshot.data!.docs.isNotEmpty) {
-                    //             snapshot.data!.docs.forEach((element) {
-                    //               Reservation r = Reservation.fromJson(
-                    //                   json.decode(json.encode(element.data())));
-                    //               if (r.userId == uid) {
-                    //                 hasReservation = true;
-                    //                 reservation = r;
-                    //               }
-                    //             });
-                    //             return hasReservation
-                    //                 ? Container(
-                    //                     decoration: const BoxDecoration(
-                    //                         color: Colors.white,
-                    //                         borderRadius: BorderRadius.only(
-                    //                             topLeft: Radius.circular(20),
-                    //                             topRight: Radius.circular(20))),
-                    //                     child: Padding(
-                    //                       padding: const EdgeInsets.all(8.0),
-                    //                       child: Column(
-                    //                         children: [
-                    //                           const Text("reservation"),
-                    //                           Text(reservation!.id ?? ""),
-                    //                           Container(
-                    //                               decoration: BoxDecoration(
-                    //                                 shape: BoxShape.circle,
-                    //                                 color: Theme.of(context)
-                    //                                     .primaryColor,
-                    //                               ),
-                    //                               child: Padding(
-                    //                                 padding:
-                    //                                     const EdgeInsets.all(
-                    //                                         20.0),
-                    //                                 child: Text(
-                    //                                   reservation!.status ?? "",
-                    //                                   style: const TextStyle(
-                    //                                       color: Colors.white,
-                    //                                       fontWeight:
-                    //                                           FontWeight.bold),
-                    //                                 ),
-                    //                               )),
-                    //                         ],
-                    //                       ),
-                    //                     ),
-                    //                   )
-                    //                 : Container();
-                    //           } else {
-                    //             return Container();
-                    //           }
-                    //         } else {
-                    //           return Container();
-                    //         }
-                    //       }),
-                    // )
                     Positioned(
                         bottom: 0,
                         left: 0,

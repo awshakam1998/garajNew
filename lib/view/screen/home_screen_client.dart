@@ -1,7 +1,6 @@
 import 'dart:async';
 import 'dart:convert';
 import 'dart:developer';
-import 'dart:ui';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
@@ -11,8 +10,8 @@ import 'package:garaj/view/widgets/book_dialog.dart';
 import 'package:garaj/view/widgets/drawer_widget.dart';
 import 'package:garaj/view/widgets/my_reservations.dart';
 import 'package:garaj/viewmodel/auth_controller.dart';
+import 'package:get/get.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
-import 'package:uuid/uuid.dart';
 
 class HomeScreenClient extends StatefulWidget {
   const HomeScreenClient({Key? key}) : super(key: key);
@@ -41,6 +40,7 @@ class HomeScreenClientState extends State<HomeScreenClient> {
   @override
   void initState() {
     getParking();
+    super.initState();
   }
 
   getParking() async {
@@ -61,14 +61,9 @@ class HomeScreenClientState extends State<HomeScreenClient> {
           _markers.add(
             Marker(
                 onTap: () {
-                  showDialog(
-                    context: context,
-                    builder: (BuildContext context) {
-                      return BookDialog(
-                        garaj: garaj,
-                      );
-                    },
-                  );
+                  Get.to(BookDialog(
+                    garaj: garaj,
+                  ));
                 },
                 markerId: markerId,
                 position: latLng),
@@ -95,13 +90,13 @@ class HomeScreenClientState extends State<HomeScreenClient> {
   );
   CameraPosition currentPosition = const CameraPosition(
       target: LatLng(31.950359, 35.886843), zoom: 19.151926040649414);
-  final GlobalKey<ScaffoldState> _scaffoldkey = new GlobalKey<ScaffoldState>();
+  final GlobalKey<ScaffoldState> _scaffoldKey =  GlobalKey<ScaffoldState>();
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-        drawer: DrawerWidget(),
-        key: _scaffoldkey,
+        drawer: const DrawerWidget(),
+        key: _scaffoldKey,
         floatingActionButton: userType == 0
             ? Padding(
                 padding: const EdgeInsets.symmetric(vertical: 80),
@@ -175,7 +170,7 @@ class HomeScreenClientState extends State<HomeScreenClient> {
                       padding: const EdgeInsets.all(8.0),
                       child: GestureDetector(
                         onTap: () {
-                          _scaffoldkey.currentState!.openDrawer();
+                          _scaffoldKey.currentState!.openDrawer();
                         },
                         child: Container(
                             decoration: BoxDecoration(
@@ -259,7 +254,7 @@ class HomeScreenClientState extends State<HomeScreenClient> {
                         right: 0,
                         child: GestureDetector(
                           onTap: () {
-                            _scaffoldkey.currentState!.showBottomSheet(
+                            _scaffoldKey.currentState!.showBottomSheet(
                                 (context) =>  MyReservations(isManager: false,));
                           },
                           child: Container(

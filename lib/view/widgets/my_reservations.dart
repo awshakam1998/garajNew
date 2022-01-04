@@ -148,8 +148,8 @@ class _MyReservationsState extends State<MyReservations> {
                                                         fontWeight:
                                                             FontWeight.bold),
                                                   ),
-                                                Text(
-                                                    '${myReservations[index].day!}/${myReservations[index].month!} at ${myReservations[index].hour}:00'),
+                                                Text(myReservations[index]
+                                                    .dateTime!),
                                                 Text(
                                                   myReservations[index].status!,
                                                   style: const TextStyle(

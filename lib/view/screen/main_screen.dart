@@ -6,6 +6,8 @@ import 'package:garaj/view/screen/home_screen_client.dart';
 import 'package:garaj/view/screen/home_screen_manager.dart';
 import 'package:garaj/viewmodel/auth_controller.dart';
 
+import 'loading_screen.dart';
+
 class MainScreen extends StatefulWidget {
   const MainScreen({Key? key}) : super(key: key);
 
@@ -17,23 +19,19 @@ class _MainScreenState extends State<MainScreen> {
   @override
   Widget build(BuildContext context) {
     return StreamBuilder<DocumentSnapshot>(
-        stream: FirebaseFirestore.instance
-            .collection('user')
-            .doc(uid)
-            .snapshots(),
+        stream:
+            FirebaseFirestore.instance.collection('user').doc(uid).snapshots(),
         builder: (context, snap) {
           if (snap.hasData) {
             DocumentSnapshot? data = snap.data!;
-            Map<dynamic, dynamic> map =
-            json.decode(json.encode(data.data()));
-            if(map['type'].toString()==0.toString()) {
-              return HomeScreenManager();
-            }
-            else{
-              return HomeScreenClient();
+            Map<dynamic, dynamic> map = json.decode(json.encode(data.data()));
+            if (map['type'].toString() == 0.toString()) {
+              return const HomeScreenManager();
+            } else {
+              return const HomeScreenClient();
             }
           }
-          return const CircularProgressIndicator();
+          return const LoadingScreen();
         });
   }
 }

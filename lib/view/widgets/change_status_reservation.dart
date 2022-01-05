@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:garaj/helper/customs.dart';
 import 'package:garaj/model/reservation.dart';
 import 'package:garaj/view/screen/home_screen_client.dart';
 import 'package:get/get_core/src/get_main.dart';
@@ -112,6 +113,7 @@ class _ChangeReservationStatusState extends State<ChangeReservationStatus> {
           minWidth: Get.width,
           color: Theme.of(context).primaryColor,
           onPressed: () {
+            Customs().loading();
             reservationRef.doc(widget.res.id).update({
               'status': pending
                   ? 'Pending'
@@ -120,6 +122,11 @@ class _ChangeReservationStatusState extends State<ChangeReservationStatus> {
                       : rejected
                           ? 'Rejected'
                           : 'Error'
+            }).then((value) {
+              Get.back();
+              Get.back();
+              Get.back();
+              Customs().showHint('Reservation', 'Reservation has been changed successfully');
             });
             // parkingRef.doc(widget.res.parkId).update({});
 

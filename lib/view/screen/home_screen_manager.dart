@@ -85,49 +85,8 @@ class HomeScreenManagerState extends State<HomeScreenManager> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      drawer: DrawerWidget(),
-      key: _scaffoldkey,
-        floatingActionButton:userType==0? StreamBuilder<QuerySnapshot>(
-            stream: reservationRef.get().asStream(),
-            builder: (context, snapshot) {
-              if (snapshot.hasData) {
-                if (snapshot.data!.docs.isNotEmpty) {
-                  return Padding(
-                    padding: const EdgeInsets.symmetric(vertical: 80),
-                    child: SizedBox(
-                      height: 70,
-                      child: Stack(
-                        children: [
-                          Padding(
-                            padding: const EdgeInsets.all(4.0),
-                            child: Container(
-                              decoration: BoxDecoration(
-                                  shape: BoxShape.circle,
-                                  color: Theme.of(context).primaryColor),
-                              child: Padding(
-                                padding: const EdgeInsets.all(12.0),
-                                child: Image.asset(
-                                  'assets/booking.png',
-                                  color: Colors.white,
-                                ),
-                              ),
-                            ),
-                          ),
-                          const CircleAvatar(
-                            radius: 10,
-                            backgroundColor: Colors.red,
-                          )
-                        ],
-                      ),
-                    ),
-                  );
-                } else {
-                  return Container();
-                }
-              } else {
-                return Container();
-              }
-            }):null,
+        drawer: DrawerWidget(),
+        key: _scaffoldkey,
         body: isLoad
             ? const Center(child: CircularProgressIndicator())
             : SafeArea(
@@ -168,19 +127,21 @@ class HomeScreenManagerState extends State<HomeScreenManager> {
                     Padding(
                       padding: const EdgeInsets.all(8.0),
                       child: GestureDetector(
-                        onTap: (){
+                        onTap: () {
                           _scaffoldkey.currentState!.openDrawer();
                         },
                         child: Container(
-                          decoration: BoxDecoration(
-                            shape: BoxShape.circle,
-                            color: Theme.of(context).primaryColor,
-                          ),
-                          child: const Padding(
-                            padding: EdgeInsets.all(8.0),
-                            child: Icon(Icons.menu,color: Colors.white,),
-                          )
-                        ),
+                            decoration: BoxDecoration(
+                              shape: BoxShape.circle,
+                              color: Theme.of(context).primaryColor,
+                            ),
+                            child: const Padding(
+                              padding: EdgeInsets.all(8.0),
+                              child: Icon(
+                                Icons.menu,
+                                color: Colors.white,
+                              ),
+                            )),
                       ),
                     ),
                     Positioned(
@@ -189,8 +150,10 @@ class HomeScreenManagerState extends State<HomeScreenManager> {
                         right: 0,
                         child: GestureDetector(
                           onTap: () {
-                            _scaffoldkey.currentState!.showBottomSheet(
-                                    (context) =>  MyReservations(isManager: true,));
+                            _scaffoldkey.currentState!
+                                .showBottomSheet((context) => MyReservations(
+                                      isManager: true,
+                                    ));
                           },
                           child: Container(
                             height: 40,
@@ -209,9 +172,35 @@ class HomeScreenManagerState extends State<HomeScreenManager> {
                                 const SizedBox(
                                   height: 10,
                                 ),
-                                const Text(
-                                  'My Reservation',
-                                  style: TextStyle(fontWeight: FontWeight.bold),
+                                Row(
+                                  mainAxisAlignment: MainAxisAlignment.center,
+                                  children: [
+                                    const Text(
+                                      'My Reservation',
+                                      style: TextStyle(
+                                          fontWeight: FontWeight.bold),
+                                    ),
+                                    const SizedBox(width: 8,),
+                                    StreamBuilder<QuerySnapshot>(
+                                        stream: reservationRef.where('managerId' , isEqualTo: uid).get().asStream(),
+                                        builder: (context, snapshot) {
+                                          if (snapshot.hasData) {
+                                            if (snapshot
+                                                .data!.docs.isNotEmpty) {
+                                              return  Text(
+                                                '${snapshot.data!.docs.length}',
+                                                style: TextStyle(
+                                                    fontWeight:
+                                                        FontWeight.bold),
+                                              );
+                                            } else {
+                                              return Container();
+                                            }
+                                          } else {
+                                            return Container();
+                                          }
+                                        })
+                                  ],
                                 ),
                               ],
                             ),
@@ -222,7 +211,6 @@ class HomeScreenManagerState extends State<HomeScreenManager> {
                                     topLeft: Radius.circular(15))),
                           ),
                         ))
-
                   ],
                 ),
               ));
@@ -262,8 +250,7 @@ class HomeScreenManagerState extends State<HomeScreenManager> {
     // set up the AlertDialog
     AlertDialog alert = AlertDialog(
       title: const Text("Park Info"),
-      content:
-          Text("Remaining: ${garaj.available}/${garaj.capacity} Parks"),
+      content: Text("Remaining: ${garaj.available}/${garaj.capacity} Parks"),
       actions: [
         cancelButton,
         // continueButton,

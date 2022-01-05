@@ -44,6 +44,7 @@ class AuthController extends GetxController {
         customs.showError();
       }
     } catch (e) {
+      print(e);
       Get.back();
       customs.showError();
     }

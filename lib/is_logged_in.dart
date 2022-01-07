@@ -35,6 +35,11 @@ class _IsLoggedInState extends State<IsLoggedIn> {
           .get()
           .then((value) {
         userType = value['type'];
+      }).catchError((err){
+        uid = null;
+        isLoading = false;
+        setState(() {
+        });
       });
       // log('User type $userType uid $uid');
       isLoading = false;

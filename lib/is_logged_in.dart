@@ -41,7 +41,6 @@ class _IsLoggedInState extends State<IsLoggedIn> {
         setState(() {
         });
       });
-      // log('User type $userType uid $uid');
       isLoading = false;
     } else {
       uid = null;

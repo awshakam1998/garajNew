@@ -20,11 +20,16 @@ dependencies:
   get: ^4.6.1
   uuid: ^3.0.5
   flutter_svg: ^1.0.0
-  firebase_auth: ^3.3.4
-  cloud_firestore: ^3.1.5
-  firebase_core: ^1.10.6
+  firebase_auth: ^3.3.5
+  cloud_firestore: ^3.1.6
+  firebase_core: ^1.11.0
   google_maps_flutter: ^2.1.1
+  path_provider: ^2.0.8
+  barcode_scan2: ^4.2.0
+  qr_flutter: ^4.0.0
   geolocator: ^8.0.1
+  url_launcher: ^6.0.17
+  location: ^4.3.0
   #END PACKAGES
 
 dev_dependencies:

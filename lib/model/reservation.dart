@@ -4,7 +4,8 @@
 
 import 'dart:convert';
 
-Reservation reservationFromJson(String str) => Reservation.fromJson(json.decode(str));
+Reservation reservationFromJson(String str) =>
+    Reservation.fromJson(json.decode(str));
 
 String reservationToJson(Reservation data) => json.encode(data.toJson());
 
@@ -15,7 +16,10 @@ class Reservation {
     this.userId,
     this.status,
     this.managerId,
- this.dateTime,
+    this.dateTime,
+    this.time,
+    this.lat,
+    this.lng,
     this.parkName,
   });
 
@@ -26,23 +30,31 @@ class Reservation {
   String? status;
   String? managerId;
   String? dateTime;
-
+  String? time;
+  String? lat;
+  String? lng;
 
   factory Reservation.fromJson(Map<String, dynamic> json) => Reservation(
-    id: json["id"],
-    dateTime: json['dateTime'],
-    parkId: json["parkId"],
-    userId: json["userId"],
-    status: json["status"],
-    managerId: json["managerId"],
-  );
+        id: json["id"],
+        dateTime: json['dateTime'],
+        time: json['time'],
+        parkId: json["parkId"],
+        userId: json["userId"],
+        status: json["status"],
+        managerId: json["managerId"],
+        lat: json["lat"],
+        lng: json["lng"],
+      );
 
   Map<String, dynamic> toJson() => {
-    "id": id,
-    "dateTime": dateTime,
-    "parkId": parkId,
-    "userId": userId,
-    "status": status,
-    "managerId": managerId,
-  };
+        "id": id,
+        "dateTime": dateTime,
+        "time": time,
+        "parkId": parkId,
+        "lat": lat,
+        "lng": lng,
+        "userId": userId,
+        "status": status,
+        "managerId": managerId,
+      };
 }

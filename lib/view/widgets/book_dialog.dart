@@ -31,32 +31,44 @@ class _BookDialogState extends State<BookDialog> {
   DateTime? date = DateTime.now();
 
   setData({required int available, required bool isNow}) {
-    var uuid = const Uuid();
-    final resUid = uuid.v1();
-    Reservation reservation = Reservation(
-        id: resUid,
-        managerId: widget.garaj.managerId,
-        userId: uid,
-        status: isNow ? "Accepted" : "Pending",
-        parkId: widget.garaj.id,
-        dateTime: f.format(date!));
+   if(available>=1) {
+      var uuid = const Uuid();
+      final resUid = uuid.v1();
+      Reservation reservation = Reservation(
+          id: resUid,
+          managerId: widget.garaj.managerId,
+          time: formattedTime,
+          userId: uid,
+          lat: widget.garaj.lat.toString(),
+          lng: widget.garaj.lng.toString(),
+          status: "Accepted",
+          parkId: widget.garaj.id,
+          dateTime: formatDate.format(date!));
 
-    reservationRef.doc(resUid).set(reservation.toJson()).then((value) async {
-      if (isNow) {
+      print('available: $available');
+      reservationRef.doc(resUid).set(reservation.toJson()).then((value) async {
+        // if (isNow) {
         await parkingRef.doc(widget.garaj.id).update({
           'available': available - 1,
         });
-      }
-      Navigator.pop(context);
-      Navigator.pop(context);
-      Customs().showHint('New reservation',
-          'Your reservation has been completed successfully\n${f.format(date!)}');
-    }).onError((error, stackTrace) {
-      log('$error');
-    });
+        // }
+        Navigator.pop(context);
+        Navigator.pop(context);
+        Customs().showHint('New reservation',
+            'Your reservation has been completed successfully\n${formatDate.format(date!)}');
+      }).onError((error, stackTrace) {
+        log('$error');
+      });
+    } else{
+     Get.back();
+     Get.snackbar('Park is full',
+         'You cannot book this park!');
+   }
   }
 
-  final f = DateFormat('yyyy-MM-dd');
+  final formatDate = DateFormat('yyyy-MM-dd');
+  String formattedTime = DateFormat('h:mm:ss a').format(DateTime.now());
+  bool isCash=true;
 
   @override
   Widget build(BuildContext context) {
@@ -72,7 +84,7 @@ class _BookDialogState extends State<BookDialog> {
             builder: (context, snapshot) {
               if (snapshot.hasData) {
                 Map<dynamic, dynamic> park =
-                json.decode(json.encode(snapshot.data!.data()));
+                    json.decode(json.encode(snapshot.data!.data()));
                 return Column(
                   mainAxisAlignment: MainAxisAlignment.start,
                   crossAxisAlignment: CrossAxisAlignment.start,
@@ -81,7 +93,7 @@ class _BookDialogState extends State<BookDialog> {
                     const Text(
                       "Park Info",
                       style:
-                      TextStyle(fontWeight: FontWeight.bold, fontSize: 18),
+                          TextStyle(fontWeight: FontWeight.bold, fontSize: 18),
                     ),
                     const SizedBox(
                       height: 20,
@@ -95,8 +107,8 @@ class _BookDialogState extends State<BookDialog> {
                       height: 10,
                     ),
                     Text(
-                      "Remaining: ${park['available']}/${park['capacity']} Parks"
-                          "\nAre you sure to Book this park?",
+                      "available: ${park['available']} Parks"
+                      "\nAre you sure to Book this park?",
                       style: const TextStyle(
                           fontWeight: FontWeight.normal, fontSize: 18),
                     ),
@@ -105,9 +117,7 @@ class _BookDialogState extends State<BookDialog> {
                     ),
                     Center(
                       child: MaterialButton(
-                          color: Theme
-                              .of(context)
-                              .primaryColor,
+                          color: Theme.of(context).primaryColor,
                           minWidth: Get.width,
                           height: 45,
                           onPressed: () {
@@ -128,15 +138,12 @@ class _BookDialogState extends State<BookDialog> {
                                               child: CupertinoDatePicker(
                                                 mode: CupertinoDatePickerMode
                                                     .date,
-                                                // initialDateTime: DateTime.now(),
-                                                // maximumDate: DateTime(2022, 12, 31),
-                                                // minimumDate: DateTime.now(),
 
                                                 maximumYear: 2022,
                                                 minimumYear: 2022,
                                                 minimumDate: DateTime.now(),
                                                 maximumDate:
-                                                DateTime(2022, 12, 31),
+                                                    DateTime(2022, 12, 31),
                                                 // minimumYear: DateTime.now().year,
 
                                                 onDateTimeChanged: (v) {
@@ -146,8 +153,7 @@ class _BookDialogState extends State<BookDialog> {
                                             ),
                                             Center(
                                               child: MaterialButton(
-                                                  color: Theme
-                                                      .of(context)
+                                                  color: Theme.of(context)
                                                       .primaryColor,
                                                   minWidth: Get.width,
                                                   height: 45,
@@ -160,7 +166,7 @@ class _BookDialogState extends State<BookDialog> {
                                                     style: TextStyle(
                                                         color: Colors.white,
                                                         fontWeight:
-                                                        FontWeight.bold,
+                                                            FontWeight.bold,
                                                         fontSize: 16),
                                                   )),
                                             ),
@@ -174,13 +180,126 @@ class _BookDialogState extends State<BookDialog> {
                           child: Text(
                             date == null
                                 ? 'Date Picker'
-                                : f.format(DateTime.parse(
-                                date!.toIso8601String().toString())),
+                                : formatDate.format(DateTime.parse(
+                                    date!.toIso8601String().toString())),
                             style: const TextStyle(
                                 color: Colors.white,
                                 fontWeight: FontWeight.bold,
                                 fontSize: 16),
                           )),
+                    ),
+                    const SizedBox(
+                      height: 20,
+                    ),
+                    Center(
+                      child: MaterialButton(
+                          color: Theme.of(context).primaryColor,
+                          minWidth: Get.width,
+                          height: 45,
+                          onPressed: () {
+                            showModalBottomSheet(
+                                context: context,
+                                builder: (context) {
+                                  return Padding(
+                                    padding: const EdgeInsets.all(8.0),
+                                    child: SizedBox(
+                                      height: Get.height / 2,
+                                      width: Get.width,
+                                      child: SingleChildScrollView(
+                                        child: Column(
+                                          children: [
+                                            SizedBox(
+                                              height: (Get.height / 2) - 100,
+                                              width: Get.width,
+                                              child: CupertinoDatePicker(
+                                                mode: CupertinoDatePickerMode
+                                                    .time,
+
+                                                onDateTimeChanged: (v) {
+                                                  formattedTime = DateFormat('h:mm:ss a').format(v);
+
+                                                },
+                                              ),
+                                            ),
+                                            Center(
+                                              child: MaterialButton(
+                                                  color: Theme.of(context)
+                                                      .primaryColor,
+                                                  minWidth: Get.width,
+                                                  height: 45,
+                                                  onPressed: () {
+                                                    setState(() {});
+                                                    Get.back();
+                                                  },
+                                                  child: const Text(
+                                                    'Save',
+                                                    style: TextStyle(
+                                                        color: Colors.white,
+                                                        fontWeight:
+                                                            FontWeight.bold,
+                                                        fontSize: 16),
+                                                  )),
+                                            ),
+                                          ],
+                                        ),
+                                      ),
+                                    ),
+                                  );
+                                });
+                          },
+                          child: Text(
+                            formattedTime,
+                            style: const TextStyle(
+                                color: Colors.white,
+                                fontWeight: FontWeight.bold,
+                                fontSize: 16),
+                          )),
+                    ),
+                    const SizedBox(
+                      height: 20,
+                    ),
+                    Row(
+                      children: [
+                        Expanded(
+                          child: MaterialButton(
+                            onPressed: () {
+                              setState(() {
+                                isCash=true;
+                              });
+                            },
+                            shape: RoundedRectangleBorder(
+                                side: BorderSide(color: Get.theme.primaryColor)
+                            ),
+                            color:isCash?Get.theme.primaryColor:Colors.white,
+                            child: const Center(
+                              child: Padding(
+                                padding: EdgeInsets.all(14),
+                                child: Text('Cash on delivery'),
+                              ),
+                            ),
+                          ),
+                        ),
+                        const SizedBox(width: 8,),
+                        Expanded(
+                          child: MaterialButton(
+                            onPressed: () {
+                              setState(() {
+                                isCash=false;
+                              });
+                            },
+                            shape: RoundedRectangleBorder(
+                                side: BorderSide(color: Get.theme.primaryColor)
+                            ),
+                            color:!isCash?Get.theme.primaryColor:Colors.white,
+                            child: const Center(
+                              child: Padding(
+                                padding: EdgeInsets.all(14.0),
+                                child: Text('Credit Card'),
+                              ),
+                            ),
+                          ),
+                        ),
+                      ],
                     ),
                     const SizedBox(
                       height: 20,
@@ -207,64 +326,66 @@ class _BookDialogState extends State<BookDialog> {
                         ),
                         Expanded(
                           child: MaterialButton(
-                              color: Colors.green,
+                              color: int.parse(park['available'].toString())>=1?Colors.green:Colors.grey,
                               height: 45,
                               onPressed: () {
-                                if (date != null) {
-                                  Customs().loading();
-                                  reservationRef
-                                      .where('userId', isEqualTo: uid)
-                                      .get()
-                                      .then((value) {
-                                    value.docs.forEach((element) {
-                                      var data = json
-                                          .decode(json.encode(element.data()));
-                                      if (data['dateTime'].toString() == f.format(date!).toString()) {
-                                      timingError = true;
-                                      }
-                                      // Navigator.pop(context);
+
+                                  if (date != null) {
+                                    Customs().loading();
+                                    reservationRef
+                                        .where('userId', isEqualTo: uid)
+                                        .get()
+                                        .then((value) {
+                                      value.docs.forEach((element) {
+                                        var data = json
+                                            .decode(json.encode(element.data()));
+                                        if (data['dateTime'].toString() ==
+                                            formatDate.format(date!).toString()) {
+                                          timingError = true;
+                                        }
+                                        // Navigator.pop(context);
                                       });
-                                  }).then((value) {
-                                    if (timingError) {
-                                      Navigator.pop(context);
-                                      Get.snackbar('Timing error',
-                                          'You have a reservation at this time');
-                                      timingError=false;
-                                    } else {
-                                      bool isNow = f.format(date!) ==
-                                          f.format(DateTime.now());
-                                      bool available = (int.parse(
-                                          park['available']
-                                              .toString()) >
-                                          0);
-                                      if (available && isNow) {
-                                        print(
-                                            '1:available $available : isNow $isNow');
-                                        setData(
-                                            available: int.parse(
-                                                park['available'].toString()),
-                                            isNow: f.format(date!) ==
-                                                f.format(DateTime.now()));
-                                      } else if (!isNow) {
-                                        print(
-                                            '2:available $available : isNow $isNow');
+                                    }).then((value) {
+                                      if (timingError) {
+                                        Navigator.pop(context);
+                                        Get.snackbar('Timing error',
+                                            'You have a reservation at this time');
+                                        timingError = false;
+                                      } else {
+                                        bool isNow = formatDate.format(date!) ==
+                                            formatDate.format(DateTime.now());
+                                        bool available = (int.parse(
+                                            park['available'].toString()) >
+                                            0);
+                                        if (available && isNow) {
+                                          print(
+                                              '1:available $available : isNow $isNow');
+                                          setData(
+                                              available: int.parse(
+                                                  park['available'].toString()),
+                                              isNow: formatDate.format(date!) ==
+                                                  formatDate
+                                                      .format(DateTime.now()));
+                                        } else if (!isNow) {
+                                          print(
+                                              '2:available $available : isNow $isNow');
 
-                                        setData(
-                                            available: int.parse(
-                                                park['available'].toString()),
-                                            isNow: isNow);
-                                      }
-                                      else {
-                                        print(
-                                            '3:available $available : isNow $isNow');
+                                          setData(
+                                              available: int.parse(
+                                                  park['available'].toString()),
+                                              isNow: isNow);
+                                        } else {
+                                          print(
+                                              '3:available $available : isNow $isNow');
 
-                                        Get.back();
-                                        Get.snackbar(
-                                            'Park is busy', 'The Park is full');
+                                          Get.back();
+                                          Get.snackbar(
+                                              'Park is busy', 'The Park is full');
+                                        }
                                       }
-                                    }
-                                  });
-                                }
+                                    });
+                                  }
+
                               },
                               child: const Text(
                                 'Book',

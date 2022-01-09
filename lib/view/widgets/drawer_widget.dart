@@ -39,7 +39,13 @@ class _DrawerWidgetState extends State<DrawerWidget> {
                             DocumentSnapshot? data = snap.data!;
                             Map<dynamic, dynamic> map =
                             json.decode(json.encode(data.data()));
-                            return Text("${map['email']}",style: TextStyle(color: Colors.white),);
+                            var userType = "${map['type']}"=='1'?'user':'Park';
+                            return Column(
+                              children: [
+                                Text("${map['email']}",style: TextStyle(color: Colors.white),),
+                                Text(userType,style: TextStyle(color: Colors.white),),
+                              ],
+                            );
                           }
                           return const CircularProgressIndicator();
                         }),

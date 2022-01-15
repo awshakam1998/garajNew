@@ -28,25 +28,34 @@ class _IsLoggedInState extends State<IsLoggedIn> {
   checkUserInStorage() async {
     SharedPreferences sharedPreferences = await SharedPreferences.getInstance();
     if (sharedPreferences.containsKey('uid')) {
-      uid = sharedPreferences.getString('uid');
-      await FirebaseFirestore.instance
-          .collection('user')
-          .doc(uid)
-          .get()
-          .then((value) {
-        userType = value['type'];
-      }).catchError((err){
-        uid = null;
-        isLoading = false;
-        setState(() {
+      uid = sharedPreferences.getString('uid')??null;
+      print('UIDD $uid');
+      if(uid!=null) {
+        await FirebaseFirestore.instance
+            .collection('user')
+            .doc(uid)
+            .get()
+            .then((value) {
+          userType = value['type'];
+        }).catchError((err) {
+          log('LoginError: ${err}');
+          uid = null;
+          if(mounted) {
+            setState(() {
+              isLoading = false;
+            });
+          }
         });
-      });
+      }
       isLoading = false;
     } else {
       uid = null;
       isLoading = false;
     }
-    setState(() {});
+    if(mounted) {
+      setState(() {
+      });
+    }
   }
 
   //q =>True or false  ?true:false

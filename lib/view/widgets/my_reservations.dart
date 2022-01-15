@@ -26,6 +26,7 @@ class _MyReservationsState extends State<MyReservations> {
       DateTime(DateTime.now().year, DateTime.now().month, DateTime.now().day);
   final formatDate = DateFormat('yyyy-MM-dd');
   final formattedTime = DateFormat('h:mm:ss a');
+  int totalPrice=0;
 
   @override
   void initState() {
@@ -40,8 +41,12 @@ class _MyReservationsState extends State<MyReservations> {
         .get()
         .then((value) {
       value.docs.forEach((element) {
-        myReservations.add(
-            Reservation.fromJson(json.decode(json.encode(element.data()))));
+        Reservation reservation =
+            Reservation.fromJson(json.decode(json.encode(element.data())));
+        if (reservation.managerId == uid) {
+          myReservations.add(reservation);
+          totalPrice+=int.parse(reservation.price!);
+        }
       });
     }).then((value) async {
       for (int i = 0; i < myReservations.length; i++) {
@@ -94,29 +99,38 @@ class _MyReservationsState extends State<MyReservations> {
               height: Get.height / 3,
               child: const Center(child: CircularProgressIndicator()))
           : SizedBox(
-              height: Get.height / 2,
+              height: widget.isManager ? Get.height : Get.height / 2,
               child: Column(
                 children: [
                   const SizedBox(
                     height: 10,
                   ),
-                  GestureDetector(
-                    onTap: () {
-                      Get.back();
-                    },
-                    child: Container(
-                        decoration: BoxDecoration(
-                          shape: BoxShape.circle,
-                          color: Theme.of(context).primaryColor,
-                        ),
-                        child: const Padding(
-                          padding: EdgeInsets.all(4.0),
-                          child: Icon(
-                            Icons.clear,
-                            color: Colors.white,
+                  if (!widget.isManager)
+                    GestureDetector(
+                      onTap: () {
+                        Get.back();
+                      },
+                      child: Container(
+                          decoration: BoxDecoration(
+                            shape: BoxShape.circle,
+                            color: Theme.of(context).primaryColor,
                           ),
-                        )),
-                  ),
+                          child: const Padding(
+                            padding: EdgeInsets.all(4.0),
+                            child: Icon(
+                              Icons.clear,
+                              color: Colors.white,
+                            ),
+                          )),
+                    ),
+                  if(widget.isManager)
+                    Text(
+                      'Total reservations price: $totalPrice JD ',
+                      style: const TextStyle(
+                          fontWeight:
+                          FontWeight
+                              .bold),
+                    ),
                   const SizedBox(
                     height: 10,
                   ),
@@ -130,12 +144,13 @@ class _MyReservationsState extends State<MyReservations> {
                           : ListView.builder(
                               itemCount: myReservations.length,
                               itemBuilder: (context, index) {
-                                if(widget.isManager) {
-                                  return  myReservations[index].status!='Expired' ?GestureDetector(
+                                if (widget.isManager) {
+                                  return GestureDetector(
                                     onTap: () {
                                       if (widget.isManager) {
                                         Get.to(ScanScreen(
-                                          reservation: myReservations[index],));
+                                          reservation: myReservations[index],
+                                        ));
                                       } else {
                                         final dateToCheck = formatDate.parse(
                                             myReservations[index].dateTime!);
@@ -146,9 +161,9 @@ class _MyReservationsState extends State<MyReservations> {
                                           if (aDate == dateToCheck) {
                                             Get.to(GenerateScreen(
                                                 reservationId:
-                                                myReservations[index].id!,
+                                                    myReservations[index].id!,
                                                 reservation:
-                                                myReservations[index]));
+                                                    myReservations[index]));
                                           } else {
                                             Get.snackbar('Reservation Date',
                                                 'The booking date has not come yet');
@@ -168,20 +183,19 @@ class _MyReservationsState extends State<MyReservations> {
                                           padding: const EdgeInsets.all(5.0),
                                           child: Row(
                                             mainAxisAlignment:
-                                            MainAxisAlignment.spaceBetween,
+                                                MainAxisAlignment.spaceBetween,
                                             crossAxisAlignment:
-                                            CrossAxisAlignment.center,
+                                                CrossAxisAlignment.center,
                                             children: [
                                               Row(
                                                 mainAxisAlignment:
-                                                MainAxisAlignment.start,
+                                                    MainAxisAlignment.start,
                                                 crossAxisAlignment:
-                                                CrossAxisAlignment.start,
+                                                    CrossAxisAlignment.start,
                                                 children: [
                                                   Icon(
                                                     Icons.local_parking,
-                                                    color: Theme
-                                                        .of(context)
+                                                    color: Theme.of(context)
                                                         .primaryColor,
                                                   ),
                                                   const SizedBox(
@@ -189,23 +203,24 @@ class _MyReservationsState extends State<MyReservations> {
                                                   ),
                                                   Column(
                                                     mainAxisAlignment:
-                                                    MainAxisAlignment.start,
+                                                        MainAxisAlignment.start,
                                                     crossAxisAlignment:
-                                                    CrossAxisAlignment.start,
+                                                        CrossAxisAlignment
+                                                            .start,
                                                     children: [
                                                       if (myReservations[index]
-                                                          .parkName !=
+                                                              .parkName !=
                                                           null)
                                                         Text(
                                                           myReservations[index]
                                                               .parkName!,
                                                           style: const TextStyle(
                                                               fontWeight:
-                                                              FontWeight
-                                                                  .bold),
+                                                                  FontWeight
+                                                                      .bold),
                                                         ),
                                                       Text(myReservations[index]
-                                                          .dateTime! +
+                                                              .dateTime! +
                                                           ' -' +
                                                           myReservations[index]
                                                               .time!),
@@ -213,12 +228,20 @@ class _MyReservationsState extends State<MyReservations> {
                                                         myReservations[index]
                                                             .status!,
                                                         style: const TextStyle(
-                                                            fontWeight: FontWeight
-                                                                .normal),
+                                                            fontWeight:
+                                                                FontWeight
+                                                                    .normal),
                                                       ),
                                                     ],
                                                   ),
                                                 ],
+                                              ),
+                                              Text(
+                                                myReservations[index].price! +
+                                                    ' JD ',
+                                                style: const TextStyle(
+                                                    fontWeight:
+                                                        FontWeight.bold),
                                               ),
                                               const Icon(
                                                 Icons.location_on,
@@ -230,15 +253,14 @@ class _MyReservationsState extends State<MyReservations> {
                                         ),
                                       ),
                                     ),
-                                  ):const Center(
-                                    child: Text('you don\'t have any active reservations '),
                                   );
-                                }
-                                else{
-                                  return  GestureDetector(
+                                } else {
+                                  return GestureDetector(
                                     onTap: () {
                                       if (widget.isManager) {
-                                        Get.to(ScanScreen(reservation: myReservations[index],));
+                                        Get.to(ScanScreen(
+                                          reservation: myReservations[index],
+                                        ));
                                       } else {
                                         final dateToCheck = formatDate.parse(
                                             myReservations[index].dateTime!);
@@ -249,10 +271,10 @@ class _MyReservationsState extends State<MyReservations> {
                                           if (aDate == dateToCheck) {
                                             Get.to(GenerateScreen(
                                                 reservationId:
-                                                myReservations[index].id!,
+                                                    myReservations[index].id!,
                                                 reservation:
-                                                myReservations[index]));
-                                          }else{
+                                                    myReservations[index]));
+                                          } else {
                                             Get.snackbar('Reservation Date',
                                                 'The booking date has not come yet');
                                           }
@@ -271,15 +293,15 @@ class _MyReservationsState extends State<MyReservations> {
                                           padding: const EdgeInsets.all(5.0),
                                           child: Row(
                                             mainAxisAlignment:
-                                            MainAxisAlignment.spaceBetween,
+                                                MainAxisAlignment.spaceBetween,
                                             crossAxisAlignment:
-                                            CrossAxisAlignment.center,
+                                                CrossAxisAlignment.center,
                                             children: [
                                               Row(
                                                 mainAxisAlignment:
-                                                MainAxisAlignment.start,
+                                                    MainAxisAlignment.start,
                                                 crossAxisAlignment:
-                                                CrossAxisAlignment.start,
+                                                    CrossAxisAlignment.start,
                                                 children: [
                                                   Icon(
                                                     Icons.local_parking,
@@ -291,36 +313,47 @@ class _MyReservationsState extends State<MyReservations> {
                                                   ),
                                                   Column(
                                                     mainAxisAlignment:
-                                                    MainAxisAlignment.start,
+                                                        MainAxisAlignment.start,
                                                     crossAxisAlignment:
-                                                    CrossAxisAlignment.start,
+                                                        CrossAxisAlignment
+                                                            .start,
                                                     children: [
                                                       if (myReservations[index]
-                                                          .parkName !=
+                                                              .parkName !=
                                                           null)
                                                         Text(
                                                           myReservations[index]
                                                               .parkName!,
                                                           style: const TextStyle(
                                                               fontWeight:
-                                                              FontWeight
-                                                                  .bold),
+                                                                  FontWeight
+                                                                      .bold),
                                                         ),
                                                       Text(myReservations[index]
-                                                          .dateTime! +
-                                                          ' -' +
+                                                          .dateTime!),
+                                                      Text(myReservations[index]
+                                                              .time! +
+                                                          ' - ' +
                                                           myReservations[index]
-                                                              .time!),
+                                                              .timeTo!),
                                                       Text(
                                                         myReservations[index]
                                                             .status!,
                                                         style: const TextStyle(
-                                                            fontWeight: FontWeight
-                                                                .normal),
+                                                            fontWeight:
+                                                                FontWeight
+                                                                    .normal),
                                                       ),
                                                     ],
                                                   ),
                                                 ],
+                                              ),
+                                              Text(
+                                                myReservations[index].price! +
+                                                    ' JD ',
+                                                style: const TextStyle(
+                                                    fontWeight:
+                                                        FontWeight.bold),
                                               ),
                                               const Icon(
                                                 Icons.location_on,

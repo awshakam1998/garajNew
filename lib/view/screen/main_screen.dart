@@ -50,7 +50,7 @@ class _MainScreenState extends State<MainScreen> {
     location.onLocationChanged.listen((event) {
       currentLocation = LatLng(event.latitude!, event.longitude!);
       print(currentLocation);
-      setState(() {});
+
     });
   }
 
